@@ -18,21 +18,22 @@ export CLANG_TRIPLE=aarch64-linux-gnu-
 export CROSS_COMPILE=${HOME}/android/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 export CROSS_COMPILE_ARM32=${HOME}/android/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-
 export LD_LIBRARY_PATH=${HOME}/android/clang11/clang-r399163/lib64:$LD_LIBRARY_PATH
-DEFCONFIG="franken_defconfig"
+export DTC_EXT=${HOME}/android/p5e/dtc
+DEFCONFIG="elementalx_defconfig"
 
 # Kernel Details
-VER=".pixel.b1"
+VER=".P5.alive8"
 
 # Paths
 KERNEL_DIR=`pwd`
 REPACK_DIR="${HOME}/android/AnyKernel3.1"
 PATCH_DIR="${HOME}/android/AnyKernel3.1/patch"
 ZIP_MOVE="${HOME}/android/pzip"
-ZIMAGE_DIR="${HOME}/android/p5/out/arch/arm64/boot/"
+ZIMAGE_DIR="${HOME}/android/p5e/out/arch/arm64/boot/"
 
 # Functions
 function clean_all {
-		rm -rf ~/android/p5/out/*
+		rm -rf ~/android/p5e/out/*
 		cd $KERNEL_DIR
 		echo
 		make clean && make mrproper
@@ -45,12 +46,8 @@ function make_kernel {
 
 }
 
-function make_dtb {
-		$REPACK_DIR/tools/dtbToolCM -2 -o $REPACK_DIR/$DTBIMAGE -s 2048 -p scripts/dtc/ arch/arm64/boot/
-}
-
 function make_boot {
-		cp -vr ~/android/p5/out/arch/arm64/boot/Image.gz-dtb ~/android/AnyKernel3.1/Image.gz-dtb
+		./scripts/mkbootimg/mkbootimg.py --kernel $ZIMAGE_DIR/Image.gz-dtb --ramdisk scripts/mkbootimg/ramdisk --dtb scripts/mkbootimg/dtb --cmdline 'console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 printk.devkmsg=on msm_rtb.filter=0x237 ehci-hcd.park=3 service_locator.enable=1 androidboot.memcg=1 cgroup.memory=nokmem usbcore.autosuspend=7 androidboot.usbcontroller=a600000.dwc3 swiotlb=2048 androidboot.boot_devices=soc/1d84000.ufshc buildvariant=user' --header_version 2 -o $ZIP_MOVE/${AK_VER}.img
 }
 
 
